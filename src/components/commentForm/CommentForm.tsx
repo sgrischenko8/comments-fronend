@@ -348,7 +348,7 @@ export const CommentForm = ({
               name="captcha"
               onChange={(e) => setCaptcha(e.target.value)}
               placeholder="Enter CAPTCHA"
-              // required
+              required
             />
           </div>
         ) : (

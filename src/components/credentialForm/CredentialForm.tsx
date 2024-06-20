@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import scss from './CredentialForm.module.scss';
 import { UserType } from '../../@types/custom';
 
 interface CredentialFormProps {

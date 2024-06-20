@@ -1,0 +1,33 @@
+.backdrop {
+  padding: 2rem 0;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(128, 128, 128, 0.2);
+  z-index: 100;
+  overflow-y: scroll;
+
+}
+
+.modal-content {
+  position: relative;
+  background-color: #ffffff50;
+  padding: 40px;
+  border-radius: 8px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: scroll;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+}

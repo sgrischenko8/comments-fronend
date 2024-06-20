@@ -1,0 +1,144 @@
+:root {
+  --main-txt-cl: #101010;
+  --subtle-txt-cl: #ffffff50;
+  --main-bg-cl: #fff;
+  --secondary-bg-cl: #eac645;
+
+  --primary-cl: #2d3f24;
+  --grey5: #a7a5a3;
+  --dark-main-txt-cl: #fff;
+  --dark-subtle-txt-cl: #11111190;
+  --dark-super-subtle-cl: #11111150;
+  --dark-main-bg-cl: #111;
+
+  --transition-time: 250ms ease-out;
+}
+
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  font-size: calc(10px + 2vmin);
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+body {
+  min-width: 320px;
+  min-height: 100lvh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Rubik', sans-serif;
+  font-size: 16px;
+  color: #101010;
+
+  @media screen and (min-width: 834px) {
+    font-size: 20px;
+  }
+  @media screen and (min-width: 1440px) {
+    font-size: 24px;
+  }
+}
+
+#root {
+  padding: 1rem;
+  min-width: 288px;
+  min-height: 80vh;
+  overflow-x: hidden;
+
+  @media screen and (min-width: 834px) {
+    width: 768px;
+  }
+  @media screen and (min-width: 1440px) {
+    width: 1312px;
+  }
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+ul {
+  list-style: none;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a,
+button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: inherit;
+  background-color: inherit;
+  cursor: pointer;
+  transition: all var(--transition-time);
+}
+button {
+  padding: 4px;
+  width: fit-content;
+  min-width: 32px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid black;
+}
+button:hover {
+  background-color: #dadada50;
+  box-shadow: 1px 1px 2px 2px #dadada;
+}
+button:active {
+  scale: 0.9;
+}
+
+a.active {
+  color: orange;
+}
+
+img {
+  object-fit: contain;
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+input {
+  text-indent: 0.4rem;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(18 20 23 / 15%);
+  border-radius: 6px;
+}

@@ -1,7 +1,8 @@
 import { ChangeEvent, useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Comment } from '../commentList/comment/Comment';
-import { postComment } from '../../api/api';
+import { postComment, getCaptcha } from '../../api/api';
+import { resizeImage } from '../../utils';
 import { CommentType } from '@types/custom';
 
 interface CommentFormProps {
@@ -42,6 +43,9 @@ export const CommentForm = ({
   const allowedTags = ['i', 'strong', 'code', 'a'] as const;
   const allowedFormat = ['jpeg', 'gif', 'png'];
 
+  const [captchaSvg, setCaptchaSvg] = useState<string>('');
+  const [captcha, setCaptcha] = useState<string>('');
+
   async function addComment() {
     const formData = new FormData();
     formData.append('file', textFile as File);
@@ -53,6 +57,7 @@ export const CommentForm = ({
     if (parentId) {
       formData.append('parentId', parentId as unknown as string);
     }
+    formData.append('captcha', captcha);
     Object.keys(params).forEach((key) => {
       formData.append(key, params[key]);
     });
@@ -74,6 +79,22 @@ export const CommentForm = ({
       console.error('Error fetching comments:', error);
     }
   }
+
+  async function fetchCaptcha() {
+    try {
+      const response = await getCaptcha();
+      if (response.status === 200) {
+        const svgText = await response.data;
+        setCaptchaSvg(svgText);
+      }
+    } catch (error) {
+      console.error('Error fetching captcha:', error);
+    }
+  }
+
+  useEffect(() => {
+    fetchCaptcha();
+  }, []);
 
   useEffect(() => {
     // Initialize WebSocket connection when the component mounts
@@ -175,7 +196,9 @@ export const CommentForm = ({
     if (type === 'imageFile' && file.type.startsWith('image/')) {
       // check if image has type .jpg, .gif, .png
       if (allowedFormat.some((el) => file.type.includes(el))) {
-        setImageFile(file);
+        const resizedFile = await resizeImage(file);
+
+        setImageFile(resizedFile);
         setError('');
         return;
       }
@@ -317,7 +340,21 @@ export const CommentForm = ({
         </div>
       ))}
       <div className="formFooter">
-        <p className="error">No CAPTCHA. Try to reload page</p>
+        {captchaSvg ? (
+          <div className="captcha">
+            <div dangerouslySetInnerHTML={{ __html: captchaSvg }} />
+            <input
+              type="text"
+              value={captcha}
+              name="captcha"
+              onChange={(e) => setCaptcha(e.target.value)}
+              placeholder="Enter CAPTCHA"
+              // required
+            />
+          </div>
+        ) : (
+          <p className="error">No CAPTCHA. Try to reload page</p>
+        )}
 
         <button
           type="button"

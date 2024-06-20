@@ -1,0 +1,62 @@
+// ------- paginator ----------------
+.paginator {
+  margin-top: 56px;
+  display: flex;
+  list-style: none;
+  gap: 8px;
+
+  @media screen and (min-width: 1440px) {
+    .paginator {
+      gap: 32px;
+    }
+  }
+
+  & button {
+    padding: 0 10px;
+    min-width: 32px;
+    width: fit-content;
+    height: 32px;
+    font-weight: 400;
+    font-size: 0.8rem;
+    background-color: inherit;
+    transition: background-color 0.25s;
+
+    &:focus,
+    &:hover {
+      text-shadow: rgba(17, 17, 17, 0.6) 1px 0 2px;
+      box-shadow: 2px 2px 6px 4px rgba(0, 0, 0, 0.35);
+      scale: 0.95;
+      outline: none;
+    }
+    &:active {
+      scale: 0.9;
+    }
+    &:disabled {
+      color: white;
+      background-color: black;
+      text-shadow: #fc0 1px 0 10px;
+      pointer-events: none;
+    }
+  }
+
+  [data-hidden='true'] {
+    display: none;
+  }
+  li:has(button[data-hidden='true']) {
+    display: none;
+  }
+
+  /* addition width+gap of disappearing buttons to padding of ul to avoid moving navigation buttons   */
+  &:has(> li:first-child[data-hidden='true']) {
+    padding-left: 40px;
+  }
+  &:has(
+      > li:first-child[data-hidden='true'] + li:nth-child(2)[data-hidden='true']
+    ) {
+    padding-left: 80px;
+  }
+
+  & > li:last-child {
+    position: relative;
+  }
+}

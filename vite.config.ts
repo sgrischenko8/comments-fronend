@@ -9,7 +9,7 @@ export default defineConfig({
       components: '/src/components',
     },
   },
-  base: '/comments/',
+  base: '/comments-frontend/',
   build: {
     target: 'esnext',
   },

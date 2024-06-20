@@ -6,7 +6,7 @@ import './App.scss';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter basename="/comments/">
+    <BrowserRouter basename="/comments-frontend/">
       <App />
     </BrowserRouter>
   </React.StrictMode>,

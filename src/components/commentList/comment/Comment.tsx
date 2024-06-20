@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { CommentForm } from '../../commentForm/CommentForm';
 import { CommentList } from '../CommentList';
 import { Modal } from 'components/modal/Modal';
+import { getFormatedDate } from '../../../utils/getFormatedDate';
 import { CommentType } from '../../../@types/custom';
 
 interface CommentProps {
@@ -65,7 +66,7 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
   return (
     <div className="comment">
       <span>
-        <strong>{userName}</strong> {createdAt}
+        <strong>{userName}</strong> {getFormatedDate(createdAt)}
       </span>
       <button
         type="button"

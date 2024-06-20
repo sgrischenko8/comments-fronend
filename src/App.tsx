@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { CommentForm } from './components/commentForm/CommentForm';
 import { CommentList } from './components/commentList/CommentList';
+import { Modal } from './components/modal/Modal';
 import { Paginator } from './components/paginator/Paginator';
 import { CredentialForm } from './components/credentialForm/CredentialForm';
 import { fetchComments } from './api/api';
@@ -19,14 +21,16 @@ function App() {
     () => Object.fromEntries([...searchParams]),
     [searchParams],
   );
+  const ws = useRef<WebSocket | null>(null);
 
   const [user, setUser] = useState(savedUser);
 
   const [comments, setComments] = useState<CommentType[]>([]);
+  const [showModal, setShowModal] = useState(false);
   const [total, setTotal] = useState<number>();
   const [error, setError] = useState('');
 
-  let isAscOrder = params?.sortOrder === 'ASC';
+  const isAscOrder = params?.sortOrder === 'ASC';
 
   async function getComments() {
     try {
@@ -41,6 +45,41 @@ function App() {
       console.error('Error fetching comments:', error);
     }
   }
+
+  useEffect(() => {
+    // Initialize WebSocket connection when the component mounts
+    if (!ws.current) {
+      ws.current = new WebSocket('ws://localhost:8080');
+
+      ws.current.onopen = () => {
+        console.log('Connected to the WebSocket server');
+      };
+
+      ws.current.onmessage = (event) => {
+        const message = event.data; // Assuming the server sends JSON messages
+        console.log(message);
+        if (message.type === 'new-comment') {
+          console.log(message);
+        }
+      };
+
+      ws.current.onclose = () => {
+        console.log('Disconnected from the WebSocket server');
+      };
+
+      ws.current.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+    }
+
+    // Cleanup function to close WebSocket when the component unmounts
+    return () => {
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        console.log('close');
+        ws.current.close();
+      }
+    };
+  }, []); // Depend on params to re-run the effect if params change
 
   useEffect(() => {
     getComments();
@@ -74,8 +113,27 @@ function App() {
     <>
       {user?.email ? (
         <section className="App">
+          <ul className="disclaimer">
+            <li>Users allowed to add only .txt, .jpg, .gif, .png files.</li>
+            <li>
+              Please use only tags provided by tag panel. The other tags are
+              forbidden.
+            </li>
+            <li>
+              User that caught on usung dangerous code inside hyperlinks will be
+              banned forever.
+            </li>
+            <li>
+              There are limits to uploading one text file and one image file.
+            </li>
+          </ul>
+
           <div className="toolbar">
-            <button type="button" title="Add Comment">
+            <button
+              type="button"
+              onClick={() => setShowModal(true)}
+              title="Add Comment"
+            >
               +
             </button>
             <div>
@@ -91,7 +149,7 @@ function App() {
                 <option value="email">Email</option>
                 <option value="createdAt">Date</option>
               </select>
-            </div>{' '}
+            </div>
             <button
               type="button"
               onClick={() =>
@@ -103,10 +161,20 @@ function App() {
             </button>
           </div>
 
+          {showModal && (
+            <Modal onClose={() => setShowModal(false)}>
+              <></>
+              <CommentForm
+                setComments={setComments}
+                parentId={null}
+                close={() => setShowModal(false)}
+              />
+            </Modal>
+          )}
           {error && <p className="error commentList">{error}</p>}
           {comments?.length > 0 && (
             <>
-              <CommentList comments={comments} />
+              <CommentList comments={comments} setComments={setComments} />
               <Paginator
                 setCurrentPage={changePage}
                 currentPage={page ? +page : 1}

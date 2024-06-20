@@ -3,14 +3,15 @@ import { CommentType } from '../../@types/custom';
 
 interface CommentListProps {
   comments?: CommentType[];
+  setComments: (arg0: CommentType[]) => void;
 }
 
-export const CommentList = ({ comments }: CommentListProps) => {
+export const CommentList = ({ comments, setComments }: CommentListProps) => {
   return (
     <ul className="commentList">
       {comments?.map((comment) => (
         <li key={comment.id}>
-          <Comment comment={comment} />
+          <Comment comment={comment} setComments={setComments} />
         </li>
       ))}
     </ul>

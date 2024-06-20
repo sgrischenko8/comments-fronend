@@ -1,15 +1,20 @@
-import { ChangeEvent, useState, useMemo } from 'react';
+import { ChangeEvent, useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { postComment } from '../../api/api';
 import { Comment } from '../commentList/comment/Comment';
-// import { CommentType } from '@types/custom';
+import { postComment } from '../../api/api';
+import { CommentType } from '@types/custom';
 
 interface CommentFormProps {
+  setComments: (arg0: CommentType[]) => void;
   parentId: null | number;
   close: () => void;
 }
 
-export const CommentForm = ({ parentId, close }: CommentFormProps) => {
+export const CommentForm = ({
+  setComments,
+  parentId,
+  close,
+}: CommentFormProps) => {
   const {
     userName: savedName,
     email: savedEmail,
@@ -22,14 +27,19 @@ export const CommentForm = ({ parentId, close }: CommentFormProps) => {
     [searchParams],
   );
 
+  const ws = useRef<WebSocket | null>(null);
+
   const [userName, setUserName] = useState<string>(savedName);
   const [email, setEmail] = useState<string>(savedEmail);
   const [url, setUrl] = useState<string>(homePage);
   const [text, setText] = useState('');
+  const [textPreview, setTextPreview] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+  const [showHypelink, setShowHypelink] = useState(false);
   const [error, setError] = useState('');
   const [textFile, setTextFile] = useState<File | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const allowedTags = ['i', 'strong', 'code', 'a'] as const;
   const allowedFormat = ['jpeg', 'gif', 'png'];
 
   async function addComment() {
@@ -54,6 +64,7 @@ export const CommentForm = ({ parentId, close }: CommentFormProps) => {
       if (resp?.status < 400) {
         setText('');
         close();
+        setComments(resp?.data?.comments);
       }
       if (resp.data?.error) {
         setError(resp.data.error);
@@ -64,9 +75,77 @@ export const CommentForm = ({ parentId, close }: CommentFormProps) => {
     }
   }
 
+  useEffect(() => {
+    // Initialize WebSocket connection when the component mounts
+    if (!ws.current) {
+      ws.current = new WebSocket('ws://localhost:8080');
+
+      ws.current.onopen = () => {
+        console.log('Connected to the WebSocket server');
+      };
+
+      ws.current.onmessage = (event) => {
+        const message = event.data; // Assuming the server sends JSON messages
+        console.log(message);
+        setTextPreview(message);
+        if (message.type === 'new-comment') {
+          console.log(message);
+        }
+      };
+
+      ws.current.onclose = () => {
+        console.log('Disconnected from the WebSocket server');
+      };
+
+      ws.current.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+    }
+
+    // Cleanup function to close WebSocket when the component unmounts
+    return () => {
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        console.log('close');
+        ws.current.close();
+      }
+    };
+  }, []); // Depend on params to re-run the effect if params change
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     addComment();
+  }
+
+  function addTag(
+    tag: (typeof allowedTags)[number],
+    href?: string,
+    title?: string,
+  ) {
+    let payload = '';
+    if (href && title) {
+      payload = ` href="${href}" title="${title}"`;
+    }
+    setText(
+      text + `<${tag}` + payload + '>' + `${title ? title : ''}` + `</${tag}>`,
+    );
+  }
+
+  function hyperlinkSubmit() {
+    const { value: title } = document.getElementById(
+      'linkTitle',
+    ) as HTMLInputElement;
+    const { value: url } = document.getElementById(
+      'linkUrl',
+    ) as HTMLInputElement;
+
+    if (title && url) {
+      addTag('a', url, title);
+      setError('');
+    } else {
+      setError('Fill title and link fields');
+      return;
+    }
+    setShowHypelink(false);
   }
 
   async function addFile(e: ChangeEvent<HTMLInputElement>, type: string) {
@@ -116,6 +195,9 @@ export const CommentForm = ({ parentId, close }: CommentFormProps) => {
     return i === 0 ? 'textFile' : 'imageFile';
   }
 
+  function previewHandler() {
+    ws.current?.send(text);
+  }
   return (
     <form id="commentForm" onSubmit={handleSubmit}>
       <button className="closeBtn" title="Close form" onClick={() => close()}>
@@ -156,10 +238,52 @@ export const CommentForm = ({ parentId, close }: CommentFormProps) => {
           name="comment"
           value={text}
           onChange={(e) => {
+            if (showPreview) {
+              ws.current?.send(e.target.value);
+            }
             setText(e.target.value);
           }}
           required
         />
+        <ul className="tags">
+          {allowedTags.map((tag) => (
+            <li key={tag}>
+              <button
+                type="button"
+                title={`Add <${tag}> tag`}
+                onClick={() =>
+                  tag === 'a' ? setShowHypelink(true) : addTag(tag)
+                }
+              >{`[${tag}]`}</button>
+            </li>
+          ))}
+        </ul>
+        {showHypelink && (
+          <div className="hyperlinkForm">
+            <label>
+              title
+              <input id="linkTitle" type="text" name="title" />
+            </label>
+            <label>
+              link
+              <input id="linkUrl" type="url" name="link" />
+            </label>
+            <button
+              type="button"
+              title="Add hyperlink"
+              onClick={() => hyperlinkSubmit()}
+            >
+              ok
+            </button>{' '}
+            <button
+              type="button"
+              title="Cancel"
+              onClick={() => setShowHypelink(false)}
+            >
+              x
+            </button>
+          </div>
+        )}
       </div>
       {error && (
         <p className="error">
@@ -193,9 +317,12 @@ export const CommentForm = ({ parentId, close }: CommentFormProps) => {
         </div>
       ))}
       <div className="formFooter">
+        <p className="error">No CAPTCHA. Try to reload page</p>
+
         <button
           type="button"
           onClick={() => {
+            previewHandler();
             setShowPreview(!showPreview);
           }}
         >
@@ -213,7 +340,7 @@ export const CommentForm = ({ parentId, close }: CommentFormProps) => {
               file: textFile,
               image: imageFile,
               parentId,
-              text,
+              text: textPreview,
               userName,
             }}
           />

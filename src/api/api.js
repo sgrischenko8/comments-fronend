@@ -2,7 +2,11 @@ import axios from 'axios';
 
 axios.defaults.withCredentials = true;
 
-axios.defaults.baseURL = import.meta.env.PROD ? import.meta.env.VITE_SERVER_BASE_URL : 'http://localhost:3000/';
+axios.defaults.baseURL = import.meta.env.PROD
+  ? import.meta.env.VITE_SERVER_URL
+  : 'http://localhost:3000/';
+
+console.log(import.meta.env);
 
 export const fetchComments = async (params) => {
   // const params = {

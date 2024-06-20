@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Comment } from '../commentList/comment/Comment';
 import { postComment, getCaptcha } from '../../api/api';
 import { resizeImage } from '../../utils';
-import { CommentType } from '@types/custom';
+import { CommentType } from '../../@types/custom';
 
 interface CommentFormProps {
   setComments: (arg0: CommentType[]) => void;

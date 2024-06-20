@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CommentForm } from '../../commentForm/CommentForm';
 import { CommentList } from '../CommentList';
-import { Modal } from 'components/modal/Modal';
+import { Modal } from '../../../components/modal/Modal';
 import { getFormatedDate } from '../../../utils/getFormatedDate';
 import { CommentType } from '../../../@types/custom';
 
@@ -117,11 +117,13 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
 
       {showFileModal && (
         <Modal onClose={() => setShowFileModal(false)}>
+          <></>
           <pre className="textModal">{fileContent}</pre>
         </Modal>
       )}
       {showImageModal && (
         <Modal onClose={() => setImageShowModal(false)}>
+          <></>
           <img
             className="modalImage"
             src={imgPath}

@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { CommentForm } from '../../commentForm/CommentForm';
 import { CommentList } from '../CommentList';
+import { Modal } from 'components/modal/Modal';
 import { CommentType } from '../../../@types/custom';
 
 interface CommentProps {
   comment: CommentType;
+  setComments?: (arg0: CommentType[]) => void;
 }
 
-export const Comment = ({ comment }: CommentProps) => {
+export const Comment = ({ comment, setComments }: CommentProps) => {
   const {
     id,
     createdAt,
@@ -19,6 +21,46 @@ export const Comment = ({ comment }: CommentProps) => {
   } = comment;
 
   const [showReplyForm, setShowReplyForm] = useState(false);
+  const [showFileModal, setShowFileModal] = useState(false);
+  const [showImageModal, setImageShowModal] = useState(false);
+  const [fileContent, setFileContent] = useState('');
+
+  let imgPath = '';
+  if (image) {
+    imgPath = setComments
+      ? `${import.meta.env.VITE_SERVER_URL}/${image}`
+      : URL.createObjectURL(image as File);
+  }
+
+  function getFileDownloadName() {
+    if (setComments) {
+      return file?.slice(22) as string;
+    }
+    if (file instanceof File) {
+      return file.name;
+    }
+    return 'download';
+  }
+
+  function getFileDownloadUrl() {
+    if (setComments) {
+      return `${import.meta.env.VITE_SERVER_URL}/${file}`;
+    }
+    return URL.createObjectURL(file as File);
+  }
+
+  async function handleShowFile() {
+    if (file && setComments) {
+      const response = await fetch(getFileDownloadUrl(), {
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+      });
+      const textContent = await response.text();
+      setFileContent(textContent);
+      setShowFileModal(true);
+    }
+  }
 
   return (
     <div className="comment">
@@ -28,33 +70,65 @@ export const Comment = ({ comment }: CommentProps) => {
       <button
         type="button"
         title="Reply"
-        onClick={() => setShowReplyForm(!showReplyForm)}
+        onClick={() => (setComments ? setShowReplyForm(!showReplyForm) : false)}
       >
         {showReplyForm ? 'Cancel' : 'Reply'}
       </button>
       <p dangerouslySetInnerHTML={{ __html: text }}></p>
-      {image && <img src={''} alt="image" id="image" width={64} height={48} />}
+      {image && (
+        <img
+          src={imgPath}
+          alt="image"
+          id="image"
+          onClick={() => setImageShowModal(!showImageModal)}
+          width={64}
+          height={48}
+        />
+      )}
       {file && (
         <>
           <a
-            href={`${import.meta.env.VITE_SERVER_URL}/${image}`}
-            download={file?.slice(22) as string}
+            href={getFileDownloadUrl()}
+            download={getFileDownloadName()}
             title="Download text file"
           >
-            {file?.slice(22) as string}
+            {getFileDownloadName()}
           </a>
-          <button type="button" onClick={() => false}>
+          <button type="button" onClick={handleShowFile}>
             Show
           </button>
         </>
       )}
+      {comment?.children && (
+        <CommentList
+          comments={children}
+          setComments={setComments as (arg0: CommentType[]) => void}
+        />
+      )}
 
-      {comment?.children && <CommentList comments={children} />}
       {showReplyForm && (
         <CommentForm
+          setComments={setComments as (arg0: CommentType[]) => void}
           parentId={id as number}
           close={() => setShowReplyForm(false)}
         />
+      )}
+
+      {showFileModal && (
+        <Modal onClose={() => setShowFileModal(false)}>
+          <pre className="textModal">{fileContent}</pre>
+        </Modal>
+      )}
+      {showImageModal && (
+        <Modal onClose={() => setImageShowModal(false)}>
+          <img
+            className="modalImage"
+            src={imgPath}
+            alt="Image"
+            width={320}
+            height={240}
+          />
+        </Modal>
       )}
     </div>
   );

@@ -92,6 +92,7 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
+
   font-family: inherit;
   background-color: inherit;
   cursor: pointer;
@@ -130,7 +131,7 @@ input {
   font-size: inherit;
   line-height: inherit;
   border: 1px solid rgba(128, 128, 128, 0.4);
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar {
@@ -141,4 +142,268 @@ input {
 ::-webkit-scrollbar-thumb {
   background: rgba(18 20 23 / 15%);
   border-radius: 6px;
+}
+
+//---------- credential form style --------
+
+#credentialForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  & > label {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+  }
+}
+
+// ----------- components style --------
+.commentList {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  & .commentList {
+    padding-left: 0.5rem;
+  }
+}
+
+#commentForm {
+  padding: 1rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: white;
+  border: 1px solid rgba(206, 195, 195, 0.5);
+  border-radius: 8px;
+
+  .closeBtn {
+    padding: 0;
+    position: absolute;
+    top: -0.2rem;
+    right: 0.2rem;
+    border: none;
+    background-color: transparent;
+    font-size: 1.5rem;
+
+    &:hover {
+      background: none;
+      box-shadow: none;
+      font-weight: 700;
+    }
+  }
+
+  & > fieldset {
+    padding: 0.4rem;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+
+    & > legend {
+      text-align: center;
+    }
+    & > input {
+      width: 48%;
+      min-width: 180px;
+      &:last-child {
+        width: 100%;
+      }
+      @media screen and (min-width: 834px) {
+        width: 30%;
+        &:last-child {
+          width: 30%;
+        }
+      }
+    }
+  }
+
+  & > div:has(textarea) {
+    position: relative;
+  }
+  & textarea {
+    padding: 1rem;
+    width: 100%;
+    min-height: 40vh;
+    resize: none;
+    font-family: inherit;
+    font-size: 1rem;
+  }
+
+  & > input[type='file'] {
+    appearance: none;
+  }
+}
+
+.tags {
+  position: absolute;
+  right: 0;
+  bottom: 3rem;
+  opacity: 0.1;
+
+  &:hover {
+    opacity: 1;
+
+    & button {
+      background-color: white;
+    }
+  }
+
+  & li {
+    display: flex;
+    justify-content: flex-end;
+
+    &:not(:last-child) {
+      margin-bottom: 0.2rem;
+    }
+  }
+}
+
+// --- hyperlinkForm -----
+
+.hyperlinkForm {
+  position: absolute;
+  right: 3rem;
+  bottom: 3rem;
+  width: calc(100% - 3rem);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+
+  & > label {
+    display: flex;
+    gap: 0.5rem;
+    width: 30%;
+
+    & > input {
+      width: 100%;
+    }
+  }
+}
+
+.custom-file-upload {
+  display: flex;
+  gap: 0.5rem;
+
+  & > label {
+    padding: 4px;
+    display: inline-block;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+
+  & > button {
+    border: none;
+    color: red;
+    font-style: italic;
+  }
+
+  input[type='file'] {
+    display: none;
+  }
+}
+
+.formFooter {
+  display: flex;
+  align-items: flex-end;
+
+  & button {
+    height: fit-content;
+
+    &:first-of-type {
+      margin: 0 1rem 0 auto;
+    }
+  }
+}
+
+.captcha {
+  & > input {
+    width: 150px;
+
+    &::placeholder {
+      font-size: 1rem;
+    }
+  }
+}
+
+// -- toolbar =-----------
+.toolbar {
+  display: flex;
+  gap: 0.5rem;
+}
+
+// ------- comment ------
+.comment {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+
+  & a {
+    width: fit-content;
+    justify-content: flex-start;
+    text-decoration: underline;
+  }
+
+  & > img {
+    max-height: 48px;
+    cursor: pointer;
+  }
+}
+
+.commentPreview {
+  & > h3 {
+    text-align: center;
+  }
+
+  & > div > p {
+    word-break: break-all;
+    white-space: pre-wrap;
+  }
+
+  & a {
+    width: fit-content;
+    justify-content: flex-start;
+    text-decoration: underline;
+  }
+
+  & > div > img {
+    max-height: 48px;
+    cursor: pointer;
+  }
+}
+
+.error {
+  color: red;
+}
+
+.disclaimer {
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+  list-style: circle;
+
+  & > li::marker {
+    content: '*';
+  }
+}
+
+//  ------------
+//  ------modal------
+.modalImage {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+  background: none;
+}
+
+.textModal {
+  padding: 1rem;
+  border-radius: 8px;
+  word-break: break-all;
+  white-space: pre-wrap;
+  background-color: white;
 }

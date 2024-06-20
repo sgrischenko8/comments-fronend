@@ -74,7 +74,6 @@ export const CommentForm = ({
       if (resp.data?.error) {
         setError(resp.data.error);
       }
-      // return true;
     } catch (error) {
       console.error('Error fetching comments:', error);
     }

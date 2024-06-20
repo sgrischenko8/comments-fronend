@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import scss from './CredentialForm.module.scss';
 import { UserType } from '../../@types/custom';
 
 interface CredentialFormProps {
@@ -25,7 +26,7 @@ export const CredentialForm = ({ onSubmit }: CredentialFormProps) => {
   }
 
   return (
-    <form id="credentialFrom" onSubmit={submitHandler}>
+    <form id="credentialForm" onSubmit={submitHandler}>
       <label>
         Name:
         <input

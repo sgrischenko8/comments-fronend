@@ -3,10 +3,8 @@ import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 axios.defaults.baseURL = import.meta.env.PROD
-  ? import.meta.env.VITE_SERVER_URL
+  ? 'https://stark-dawn-12728-fe14e70c36ad.herokuapp.com/'
   : 'http://localhost:3000/';
-
-console.log(import.meta.env);
 
 export const fetchComments = async (params) => {
   // const params = {
@@ -15,7 +13,13 @@ export const fetchComments = async (params) => {
   //   sortOrder,
   // };
   try {
-    const response = await axios.get('/comments/', { params });
+    const response = await axios.get(
+      '/comments/',
+      { params },
+      {
+        withCredentials: true,
+      },
+    );
     console.log(response.data);
     return response.data;
   } catch (error) {
@@ -26,7 +30,9 @@ export const fetchComments = async (params) => {
 
 export const postComment = async (body) => {
   try {
-    const response = await axios.post(`/comments/`, body);
+    const response = await axios.post(`/comments/`, body, {
+      withCredentials: true,
+    });
     console.log(response.data);
     return response;
   } catch (error) {
@@ -37,7 +43,9 @@ export const postComment = async (body) => {
 
 export const getCaptcha = async () => {
   try {
-    const response = await axios.get(`/captcha/`);
+    const response = await axios.get(`/captcha/`, {
+      withCredentials: true,
+    });
     return response;
   } catch (error) {
     console.log(error.response);

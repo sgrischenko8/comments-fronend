@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CommentForm } from './components/commentForm/CommentForm';
 import { CommentList } from './components/commentList/CommentList';
@@ -21,7 +21,6 @@ function App() {
     () => Object.fromEntries([...searchParams]),
     [searchParams],
   );
-  const ws = useRef<WebSocket | null>(null);
 
   const [user, setUser] = useState(savedUser);
 
@@ -45,41 +44,6 @@ function App() {
       console.error('Error fetching comments:', error);
     }
   }
-
-  useEffect(() => {
-    // Initialize WebSocket connection when the component mounts
-    if (!ws.current) {
-      ws.current = new WebSocket('ws://localhost:8080');
-
-      ws.current.onopen = () => {
-        console.log('Connected to the WebSocket server');
-      };
-
-      ws.current.onmessage = (event) => {
-        const message = event.data; // Assuming the server sends JSON messages
-        console.log(message);
-        if (message.type === 'new-comment') {
-          console.log(message);
-        }
-      };
-
-      ws.current.onclose = () => {
-        console.log('Disconnected from the WebSocket server');
-      };
-
-      ws.current.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-    }
-
-    // Cleanup function to close WebSocket when the component unmounts
-    return () => {
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        console.log('close');
-        ws.current.close();
-      }
-    };
-  }, []); // Depend on params to re-run the effect if params change
 
   useEffect(() => {
     getComments();
@@ -184,7 +148,10 @@ function App() {
           )}
         </section>
       ) : (
-        <CredentialForm onSubmit={onSubmit} />
+        <Modal onClose={() => setShowModal(false)}>
+          <></>
+          <CredentialForm onSubmit={onSubmit} />
+        </Modal>
       )}
     </>
   );

@@ -313,12 +313,43 @@ input {
   display: flex;
   align-items: flex-end;
 
-  & button {
+  & > button {
     height: fit-content;
 
     &:first-of-type {
-      margin: 0 1rem 0 auto;
+      margin: 0 auto 2rem 1rem;
+      border: none;
+      background-color: white;
+      box-shadow: none;
+
+      &:hover {
+        scale: 1.1;
+      }
+      &:active {
+        scale: 0.9;
+        svg {
+          transform-origin: center;
+          animation: lds-hourglass 0.1s linear infinite;
+        }
+      }
     }
+    &:last-child {
+      margin-left: 1rem;
+    }
+  }
+}
+
+@keyframes lds-hourglass {
+  0% {
+    transform: rotate(0);
+    animation-timing-function: linear;
+  }
+  10% {
+    transform: rotate(-900deg);
+    animation-timing-function: linear;
+  }
+  100% {
+    transform: rotate(-1800deg);
   }
 }
 

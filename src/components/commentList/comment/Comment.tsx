@@ -27,33 +27,33 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
   const [showImageModal, setImageShowModal] = useState(false);
   const [fileContent, setFileContent] = useState('');
 
-  // let imgPath = '';
-  // if (image) {
-  //   imgPath = setComments
-  //     ? `https://stark-dawn-12728-fe14e70c36ad.herokuapp.com/${image}`
-  //     : URL.createObjectURL(image as File);
-  // }
+  let imgPath = '';
+  if (image) {
+    imgPath = setComments
+      ? `https://stark-dawn-12728-fe14e70c36ad.herokuapp.com/${image}`
+      : URL.createObjectURL(image as File);
+  }
 
-  // function getFileDownloadName() {
-  //   if (setComments) {
-  //     return file?.slice(22) as string;
-  //   }
-  //   if (file instanceof File) {
-  //     return file.name;
-  //   }
-  //   return 'download';
-  // }
+  function getFileDownloadName() {
+    if (setComments) {
+      return file?.slice(22) as string;
+    }
+    if (file instanceof File) {
+      return file.name;
+    }
+    return 'download';
+  }
 
-  // function getFileDownloadUrl() {
-  //   if (setComments) {
-  //     return `https://stark-dawn-12728-fe14e70c36ad.herokuapp.com/${file}`;
-  //   }
-  //   return URL.createObjectURL(file as File);
-  // }
+  function getFileDownloadUrl() {
+    if (setComments) {
+      return `https://stark-dawn-12728-fe14e70c36ad.herokuapp.com/${file}`;
+    }
+    return URL.createObjectURL(file as File);
+  }
 
   async function handleShowFile() {
     if (file && setComments) {
-      const response = await fetch(URL.createObjectURL(file as File), {
+      const response = await fetch(getFileDownloadUrl(), {
         headers: {
           'Content-Type': 'text/plain',
         },
@@ -79,9 +79,7 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
       <p dangerouslySetInnerHTML={{ __html: text }}></p>
       {image && (
         <img
-          src={
-            typeof file === 'string' ? '' : URL.createObjectURL(image as File)
-          }
+          src={imgPath}
           alt="image"
           id="image"
           onClick={() => setImageShowModal(!showImageModal)}
@@ -92,13 +90,11 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
       {file && (
         <>
           <a
-            href={
-              typeof file === 'string' ? '' : URL.createObjectURL(file as File)
-            }
-            download={file instanceof File ? file.name : 'download'}
+            href={getFileDownloadUrl()}
+            download={getFileDownloadName()}
             title="Download text file"
           >
-            {file instanceof File ? file.name : 'download'}
+            {getFileDownloadName()}
           </a>
           <button type="button" onClick={handleShowFile}>
             Show
@@ -131,7 +127,7 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
           <></>
           <img
             className="modalImage"
-            src={URL.createObjectURL(image as File)}
+            src={imgPath}
             alt="Image"
             width={320}
             height={240}

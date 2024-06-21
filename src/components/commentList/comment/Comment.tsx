@@ -20,8 +20,7 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
     file = null,
     image = null,
   } = comment;
-  console.log(file);
-  console.log(image);
+
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showFileModal, setShowFileModal] = useState(false);
   const [showImageModal, setImageShowModal] = useState(false);
@@ -96,7 +95,7 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
           >
             {getFileDownloadName()}
           </a>
-          <button type="button" onClick={handleShowFile}>
+          <button type="button" onClick={handleShowFile} title="Show file">
             Show
           </button>
         </>

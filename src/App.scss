@@ -114,10 +114,6 @@ button:active {
   scale: 0.9;
 }
 
-a.active {
-  color: orange;
-}
-
 img {
   object-fit: contain;
   display: block;
@@ -423,7 +419,6 @@ input {
   }
 }
 
-//  ------------
 //  ------modal------
 .modalImage {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);

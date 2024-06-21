@@ -64,7 +64,6 @@ export const CommentForm = ({
 
     try {
       const resp = await postComment(formData);
-      console.log(resp);
 
       if (resp?.status < 400) {
         setText('');
@@ -105,16 +104,12 @@ export const CommentForm = ({
       );
 
       ws.current.onopen = () => {
-        console.log('Connected to the WebSocket server');
+        // console.log('Connected to the WebSocket server');
       };
 
       ws.current.onmessage = (event) => {
-        const message = event.data; // Assuming the server sends JSON messages
-        console.log(message);
+        const message = event.data;
         setTextPreview(message);
-        if (message.type === 'new-comment') {
-          console.log(message);
-        }
       };
 
       ws.current.onclose = () => {
@@ -126,14 +121,12 @@ export const CommentForm = ({
       };
     }
 
-    // Cleanup function to close WebSocket when the component unmounts
     return () => {
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        console.log('close');
         ws.current.close();
       }
     };
-  }, []); // Depend on params to re-run the effect if params change
+  }, []);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -177,7 +170,6 @@ export const CommentForm = ({
     if (!file) {
       return;
     }
-    // console.log(file);
 
     if (type === 'textFile') {
       if (
@@ -227,7 +219,7 @@ export const CommentForm = ({
   return (
     <form id="commentForm" onSubmit={handleSubmit}>
       <button className="closeBtn" title="Close form" onClick={() => close()}>
-        x
+        &times;
       </button>
       <fieldset>
         <legend>Credentials</legend>
@@ -356,7 +348,11 @@ export const CommentForm = ({
                 required
               />
             </div>
-            <button type="button" onClick={() => fetchCaptcha()}>
+            <button
+              type="button"
+              onClick={() => fetchCaptcha()}
+              title="Reload CAPTCHA"
+            >
               <svg
                 width={32}
                 height={32}

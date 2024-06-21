@@ -13,14 +13,7 @@ export const fetchComments = async (params) => {
   //   sortOrder,
   // };
   try {
-    const response = await axios.get(
-      '/comments/',
-      { params },
-      {
-        withCredentials: true,
-      },
-    );
-    console.log(response.data);
+    const response = await axios.get('/comments/', { params });
     return response.data;
   } catch (error) {
     console.log(error);
@@ -30,10 +23,7 @@ export const fetchComments = async (params) => {
 
 export const postComment = async (body) => {
   try {
-    const response = await axios.post(`/comments/`, body, {
-      withCredentials: true,
-    });
-    console.log(response.data);
+    const response = await axios.post(`/comments/`, body);
     return response;
   } catch (error) {
     console.log(error.response);
@@ -43,9 +33,7 @@ export const postComment = async (body) => {
 
 export const getCaptcha = async () => {
   try {
-    const response = await axios.get(`/captcha/`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(`/captcha/`);
     return response;
   } catch (error) {
     console.log(error.response);

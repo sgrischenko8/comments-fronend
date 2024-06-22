@@ -1,12 +1,13 @@
 import { ChangeEvent, useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Comment } from '../commentList/comment/Comment';
-import { postComment, getCaptcha } from '../../api/api';
+import { CommentComponent } from '../commentList/comment/Comment';
+import { Loader } from '../loader/Loader';
+import { createComment, fetchCaptcha } from '../../api/CommentService';
 import { resizeImage } from '../../utils';
-import { CommentType } from '../../@types/custom';
+import { Comment } from '../../models/Comment';
 
 interface CommentFormProps {
-  setComments: (arg0: CommentType[]) => void;
+  setComments: (comments: Comment[]) => void;
   parentId: null | number;
   close: () => void;
 }
@@ -30,6 +31,7 @@ export const CommentForm = ({
 
   const ws = useRef<WebSocket | null>(null);
 
+  const [isLoading, setIsLoading] = useState(false);
   const [userName, setUserName] = useState<string>(savedName);
   const [email, setEmail] = useState<string>(savedEmail);
   const [url, setUrl] = useState<string>(homePage);
@@ -52,7 +54,7 @@ export const CommentForm = ({
     formData.append('image', imageFile as File);
     formData.append('userName', userName);
     formData.append('email', email);
-    formData.append('homePage', homePage);
+    formData.append('homePage', url);
     formData.append('text', text);
     if (parentId) {
       formData.append('parentId', parentId as unknown as string);
@@ -63,25 +65,28 @@ export const CommentForm = ({
     });
 
     try {
-      const resp = await postComment(formData);
+      setIsLoading(true);
+      const resp = await createComment(formData);
 
-      if (resp?.status < 400) {
+      if (resp && resp?.status < 400) {
         setText('');
         close();
         setComments(resp?.data?.comments);
       }
-      if (resp.data?.error) {
+      if (resp && resp.data?.error) {
         setError(resp.data.error);
       }
     } catch (error) {
       console.error('Error fetching comments:', error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
-  async function fetchCaptcha() {
+  async function bringCaptcha() {
     try {
-      const response = await getCaptcha();
-      if (response.status === 200) {
+      const response = await fetchCaptcha();
+      if (response?.status === 200) {
         const svgText = await response.data;
         setCaptchaSvg(svgText);
       }
@@ -91,7 +96,7 @@ export const CommentForm = ({
   }
 
   useEffect(() => {
-    fetchCaptcha();
+    bringCaptcha();
   }, []);
 
   useEffect(() => {
@@ -217,185 +222,192 @@ export const CommentForm = ({
     ws.current?.send(text);
   }
   return (
-    <form id="commentForm" onSubmit={handleSubmit}>
-      <button className="closeBtn" title="Close form" onClick={() => close()}>
-        &times;
-      </button>
-      <fieldset>
-        <legend>Credentials</legend>
-        <input
-          type="text"
-          placeholder="User Name"
-          name="userName"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          pattern="^[a-zA-Z0-9]+$"
-          required
-        />
+    <>
+      {isLoading && <Loader />}
+      <form id="commentForm" onSubmit={handleSubmit}>
+        <fieldset>
+          <legend>Credentials</legend>
+          <input
+            type="text"
+            placeholder="User Name"
+            name="userName"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            pattern="^[a-zA-Z0-9]+$"
+            required
+          />
 
-        <input
-          type="email"
-          placeholder="E-mail"
-          name="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+          <input
+            type="email"
+            placeholder="E-mail"
+            name="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-        <input
-          type="url"
-          placeholder="Your Home Page"
-          name="homePage"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-        />
-      </fieldset>
-      <div>
-        <textarea
-          placeholder="Leave comment"
-          name="comment"
-          value={text}
-          onChange={(e) => {
-            if (showPreview) {
-              ws.current?.send(e.target.value);
-            }
-            setText(e.target.value);
-          }}
-          required
-        />
-        <ul className="tags">
-          {allowedTags.map((tag) => (
-            <li key={tag}>
+          <input
+            type="url"
+            placeholder="Your Home Page"
+            name="homePage"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+          />
+        </fieldset>
+        <div>
+          <textarea
+            placeholder="Leave comment"
+            name="comment"
+            value={text}
+            onChange={(e) => {
+              if (showPreview) {
+                ws.current?.send(e.target.value);
+              }
+              setText(e.target.value);
+            }}
+            required
+          />
+          <ul className="tags">
+            {allowedTags.map((tag) => (
+              <li key={tag}>
+                <button
+                  type="button"
+                  title={`Add <${tag}> tag`}
+                  onClick={() =>
+                    tag === 'a' ? setShowHypelink(true) : addTag(tag)
+                  }
+                >{`[${tag}]`}</button>
+              </li>
+            ))}
+          </ul>
+          {showHypelink && (
+            <div className="hyperlinkForm">
+              <label>
+                title
+                <input id="linkTitle" type="text" name="title" />
+              </label>
+              <label>
+                link
+                <input id="linkUrl" type="url" name="link" />
+              </label>
               <button
                 type="button"
-                title={`Add <${tag}> tag`}
-                onClick={() =>
-                  tag === 'a' ? setShowHypelink(true) : addTag(tag)
-                }
-              >{`[${tag}]`}</button>
-            </li>
-          ))}
-        </ul>
-        {showHypelink && (
-          <div className="hyperlinkForm">
-            <label>
-              title
-              <input id="linkTitle" type="text" name="title" />
-            </label>
-            <label>
-              link
-              <input id="linkUrl" type="url" name="link" />
-            </label>
+                title="Add hyperlink"
+                onClick={() => hyperlinkSubmit()}
+              >
+                ok
+              </button>{' '}
+              <button
+                type="button"
+                title="Cancel"
+                onClick={() => setShowHypelink(false)}
+              >
+                &times;
+              </button>
+            </div>
+          )}
+        </div>
+        {error && (
+          <p className="error">
+            {typeof error === 'string' ? error : 'Error happen'}
+          </p>
+        )}
+        {[textFile, imageFile].map((el, i) => (
+          <div key={i} className="custom-file-upload">
+            {el ? (
+              <span>{el.name}</span>
+            ) : (
+              <label>
+                <input
+                  type="file"
+                  title="Add file"
+                  name={getType(i as 1 | 0)}
+                  accept={i === 0 ? 'text/plain' : 'image/*'}
+                  onChange={(e) => addFile(e, getType(i as 0 | 1))}
+                />
+                Add {i === 0 ? 'text' : 'image'} file
+              </label>
+            )}
+            {el && (
+              <button
+                type="button"
+                title="Delete file"
+                onClick={() => deleteFile(getType(i as 0 | 1))}
+              >
+                &times;
+              </button>
+            )}
+          </div>
+        ))}
+        <div className="formFooter">
+          {captchaSvg ? (
+            <>
+              <div className="captcha">
+                <div dangerouslySetInnerHTML={{ __html: captchaSvg }} />
+                <input
+                  type="text"
+                  value={captcha}
+                  name="captcha"
+                  onChange={(e) => setCaptcha(e.target.value)}
+                  placeholder="Enter CAPTCHA"
+                  required
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => bringCaptcha()}
+                title="Reload CAPTCHA"
+              >
+                <svg width={32} height={22}>
+                  <use href="sprite.svg#reload" />
+                </svg>
+              </button>
+            </>
+          ) : (
+            <p className="error">No CAPTCHA. Try to reload page</p>
+          )}
+          <div>
             <button
               type="button"
-              title="Add hyperlink"
-              onClick={() => hyperlinkSubmit()}
+              onClick={() => close()}
+              title="Close form"
+              className="cancelBtn"
             >
-              ok
-            </button>{' '}
-            <button
-              type="button"
-              title="Cancel"
-              onClick={() => setShowHypelink(false)}
-            >
-              x
+              Cancel
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                previewHandler();
+                setShowPreview(!showPreview);
+              }}
+            >
+              {showPreview ? 'Hide' : 'Preview'}
+            </button>
+            <button type="submit">Post</button>
+          </div>
+        </div>
+        {showPreview && (
+          <div className="comment commentPreview">
+            <h3>Comment preview</h3>
+            <CommentComponent
+              comment={
+                new Comment(
+                  Date.now(),
+                  email,
+                  textPreview,
+                  userName,
+                  parentId,
+                  undefined,
+                  undefined,
+                  textFile,
+                  imageFile,
+                )
+              }
+            />
           </div>
         )}
-      </div>
-      {error && (
-        <p className="error">
-          {typeof error === 'string' ? error : 'Error happen'}
-        </p>
-      )}
-      {[textFile, imageFile].map((el, i) => (
-        <div key={i} className="custom-file-upload">
-          {el ? (
-            <span>{el.name}</span>
-          ) : (
-            <label>
-              <input
-                type="file"
-                title="Add file"
-                name={getType(i as 1 | 0)}
-                accept={i === 0 ? 'text/plain' : 'image/*'}
-                onChange={(e) => addFile(e, getType(i as 0 | 1))}
-              />
-              Add {i === 0 ? 'text' : 'image'} file
-            </label>
-          )}
-
-          <button
-            type="button"
-            title="Delete file"
-            onClick={() => deleteFile(getType(i as 0 | 1))}
-          >
-            x
-          </button>
-        </div>
-      ))}
-      <div className="formFooter">
-        {captchaSvg ? (
-          <>
-            <div className="captcha">
-              <div dangerouslySetInnerHTML={{ __html: captchaSvg }} />
-              <input
-                type="text"
-                value={captcha}
-                name="captcha"
-                onChange={(e) => setCaptcha(e.target.value)}
-                placeholder="Enter CAPTCHA"
-                required
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => fetchCaptcha()}
-              title="Reload CAPTCHA"
-            >
-              <svg
-                width={32}
-                height={32}
-                viewBox="0 0 32 32"
-                fill="grey"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M27.802 5.197c-2.925-3.194-7.13-5.197-11.803-5.197-8.837 0-16 7.163-16 16h3c0-7.18 5.82-13 13-13 3.844 0 7.298 1.669 9.678 4.322l-4.678 4.678h11v-11l-4.198 4.197z"></path>
-                <path d="M29 16c0 7.18-5.82 13-13 13-3.844 0-7.298-1.669-9.678-4.322l4.678-4.678h-11v11l4.197-4.197c2.925 3.194 7.13 5.197 11.803 5.197 8.837 0 16-7.163 16-16h-3z"></path>
-              </svg>
-            </button>
-          </>
-        ) : (
-          <p className="error">No CAPTCHA. Try to reload page</p>
-        )}
-
-        <button
-          type="button"
-          onClick={() => {
-            previewHandler();
-            setShowPreview(!showPreview);
-          }}
-        >
-          {showPreview ? 'Hide' : 'Preview'}
-        </button>
-        <button type="submit">Post</button>
-      </div>
-      {showPreview && (
-        <div className="comment commentPreview">
-          <h3>Comment preview</h3>
-          <Comment
-            comment={{
-              createdAt: Date.now(),
-              email,
-              file: textFile,
-              image: imageFile,
-              parentId,
-              text: textPreview,
-              userName,
-            }}
-          />
-        </div>
-      )}
-    </form>
+      </form>
+    </>
   );
 };

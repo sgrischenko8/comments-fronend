@@ -1,9 +1,9 @@
-import { Comment } from './comment/Comment';
-import { CommentType } from '../../@types/custom';
+import { CommentComponent } from './comment/Comment';
+import { Comment } from '../../models/Comment';
 
 interface CommentListProps {
-  comments?: CommentType[];
-  setComments: (arg0: CommentType[]) => void;
+  comments?: Comment[];
+  setComments: (arg0: Comment[]) => void;
 }
 
 export const CommentList = ({ comments, setComments }: CommentListProps) => {
@@ -11,7 +11,7 @@ export const CommentList = ({ comments, setComments }: CommentListProps) => {
     <ul className="commentList">
       {comments?.map((comment) => (
         <li key={comment.id}>
-          <Comment comment={comment} setComments={setComments} />
+          <CommentComponent comment={comment} setComments={setComments} />
         </li>
       ))}
     </ul>

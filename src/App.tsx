@@ -4,15 +4,23 @@ import { CommentForm } from './components/commentForm/CommentForm';
 import { CommentList } from './components/commentList/CommentList';
 import { Modal } from './components/modal/Modal';
 import { Paginator } from './components/paginator/Paginator';
+import { Loader } from './components/loader/Loader';
 import { CredentialForm } from './components/credentialForm/CredentialForm';
-import { fetchComments } from './api/api';
-import { UserType, CommentType } from './@types/custom';
+import { User } from './models/User';
+import { Comment } from './models/Comment';
+import { fetchAllComments } from './api/CommentService';
 
 function App() {
-  let savedUser: UserType | undefined;
+  let savedUser: User | undefined;
 
   if (localStorage.getItem('user')) {
-    savedUser = JSON.parse(localStorage.getItem('user') as string);
+    const userData = JSON.parse(localStorage.getItem('user') as string);
+    savedUser = new User(
+      userData.userName,
+      userData.email,
+      userData.homePage,
+      userData.id,
+    );
   }
   const [searchParams, setSearchParams] = useSearchParams();
   const page = searchParams.get('page');
@@ -22,19 +30,19 @@ function App() {
     [searchParams],
   );
 
-  const [user, setUser] = useState(savedUser);
-
-  const [comments, setComments] = useState<CommentType[]>([]);
+  const [user, setUser] = useState<User | undefined>(savedUser);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [total, setTotal] = useState<number>();
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const isAscOrder = params?.sortOrder === 'ASC';
 
-  async function getComments() {
+  async function fetchComments() {
+    setIsLoading(true);
     try {
-      const response = await fetchComments(params);
-
+      const response = await fetchAllComments(params);
       setError(
         response?.status === 500 ? 'We have server connection error' : '',
       );
@@ -42,21 +50,22 @@ function App() {
       setTotal(response.totalPages);
     } catch (error) {
       console.error('Error fetching comments:', error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
   useEffect(() => {
-    getComments();
+    fetchComments();
   }, [params]);
 
-  function onSubmit(data: UserType) {
+  function onSubmit(data: User) {
     localStorage.user = JSON.stringify(data);
     setUser(data);
   }
 
   function changeParams(field: string, value: string | number) {
     const newparams = { ...params, [field]: value as string };
-
     setSearchParams(newparams);
   }
 
@@ -69,12 +78,12 @@ function App() {
     const value = target.value;
 
     const newparams = { ...params, sortBy: value };
-
     setSearchParams(newparams);
   }
 
   return (
     <>
+      {isLoading && <Loader />}
       {user?.email ? (
         <section className="App">
           <ul className="disclaimer">
@@ -84,7 +93,7 @@ function App() {
               forbidden.
             </li>
             <li>
-              User that caught on usung dangerous code inside hyperlinks will be
+              User that caught on using dangerous code inside hyperlinks will be
               banned forever.
             </li>
             <li>
@@ -100,20 +109,20 @@ function App() {
             >
               +
             </button>
-            <div>
-              <select
-                name="sortBy"
-                defaultValue="placeholder"
-                onChange={(e) => sortBy(e)}
-              >
-                <option hidden disabled value="placeholder">
-                  Sort by...
-                </option>
-                <option value="userName">User Name</option>
-                <option value="email">Email</option>
-                <option value="createdAt">Date</option>
-              </select>
-            </div>
+
+            <select
+              name="sortBy"
+              defaultValue="placeholder"
+              onChange={(e) => sortBy(e)}
+            >
+              <option hidden disabled value="placeholder">
+                Sort by...
+              </option>
+              <option value="userName">Author</option>
+              <option value="email">Email</option>
+              <option value="createdAt">Date</option>
+            </select>
+
             <button
               type="button"
               onClick={() =>
@@ -121,7 +130,7 @@ function App() {
               }
               title={`Sort by ${isAscOrder ? 'Descending' : 'Ascending'} order`}
             >
-              {isAscOrder ? ' latest first' : 'older first'}
+              {isAscOrder ? '⇓' : '⇑'}
             </button>
           </div>
 

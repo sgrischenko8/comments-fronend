@@ -12,7 +12,6 @@ export const Paginator = ({
   currentPage,
   pageCount,
 }: PaginatorProps) => {
-  // console.log(typeof currentPage, typeof pageCount);
   const firstBtnRef = useRef() as React.MutableRefObject<HTMLButtonElement>;
   const secondBtnRef = useRef() as React.MutableRefObject<HTMLButtonElement>;
   const thirdBtnRef = useRef() as React.MutableRefObject<HTMLButtonElement>;

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { UserType } from '../../@types/custom';
+import { User } from '../../models/User';
 
 interface CredentialFormProps {
-  onSubmit: (data: UserType) => void;
+  onSubmit: (data: User) => void;
   short?: boolean;
 }
 
@@ -16,11 +16,13 @@ export const CredentialForm = ({ onSubmit }: CredentialFormProps) => {
     const form = e.target as HTMLFormElement;
 
     if (userName.trim() && email.trim()) {
-      onSubmit({
+      const user = User.fromFormValues({
         userName: (form[0] as HTMLInputElement).value,
         email: (form[1] as HTMLInputElement).value,
         homePage: (form[2] as HTMLInputElement).value,
       });
+
+      onSubmit(user);
     }
   }
 
@@ -59,9 +61,7 @@ export const CredentialForm = ({ onSubmit }: CredentialFormProps) => {
           onChange={(e) => setUrl(e.target.value)}
         />
       </label>
-      <button type="submit" onClick={() => false}>
-        Login
-      </button>
+      <button type="submit">Login</button>
     </form>
   );
 };

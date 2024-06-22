@@ -13,4 +13,17 @@ export default defineConfig({
   build: {
     target: 'esnext',
   },
+  preview: {
+    port: 5000,
+    strictPort: true,
+  },
+  server: {
+    port: 5000,
+    strictPort: true,
+    host: true,
+    origin: 'http://0.0.0.0:5000',
+    watch: {
+      usePolling: true
+    }
+  },
 });

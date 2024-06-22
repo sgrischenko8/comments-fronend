@@ -33,7 +33,7 @@ export const Modal = ({ children, onClose }: ModalProps) => {
   };
 
   return createPortal(
-    <div className={css.backdrop} onMouseDown={handleBackdropClick}>
+    <div className="backdrop" onMouseDown={handleBackdropClick}>
       <div className={css['modal-content']}>
         <button type="button" className={css['close-button']} onClick={onClose}>
           &times;

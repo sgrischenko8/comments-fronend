@@ -1,15 +1,8 @@
 :root {
   --main-txt-cl: #101010;
-  --subtle-txt-cl: #ffffff50;
+  --subtle-cl: #ddd;
   --main-bg-cl: #fff;
-  --secondary-bg-cl: #eac645;
-
-  --primary-cl: #2d3f24;
-  --grey5: #a7a5a3;
-  --dark-main-txt-cl: #fff;
-  --dark-subtle-txt-cl: #11111190;
-  --dark-super-subtle-cl: #11111150;
-  --dark-main-bg-cl: #111;
+  --secondary-bg-cl: #dadada50;
 
   --transition-time: 250ms ease-out;
 }
@@ -20,24 +13,6 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  font-size: calc(10px + 2vmin);
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 body {
@@ -50,7 +25,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-family: 'Rubik', sans-serif;
   font-size: 16px;
-  color: #101010;
+  color: var(--main-txt-cl);
 
   @media screen and (min-width: 834px) {
     font-size: 20px;
@@ -65,13 +40,6 @@ body {
   min-width: 288px;
   min-height: 80vh;
   overflow-x: hidden;
-
-  @media screen and (min-width: 834px) {
-    width: 768px;
-  }
-  @media screen and (min-width: 1440px) {
-    width: 1312px;
-  }
 }
 
 code {
@@ -81,10 +49,6 @@ code {
 
 ul {
   list-style: none;
-}
-a {
-  color: inherit;
-  text-decoration: none;
 }
 
 a,
@@ -100,15 +64,13 @@ button {
 }
 button {
   padding: 4px;
-  width: fit-content;
   min-width: 32px;
   font-weight: 500;
   border-radius: 8px;
-  border: 1px solid black;
+  border: none;
 }
 button:hover {
-  background-color: #dadada50;
-  box-shadow: 1px 1px 2px 2px #dadada;
+  background-color: var(--secondary-bg-cl);
 }
 button:active {
   scale: 0.9;
@@ -127,6 +89,10 @@ input {
   font-size: inherit;
   line-height: inherit;
   border: 1px solid rgba(128, 128, 128, 0.4);
+}
+input,
+textarea,
+fieldset {
   border-radius: 4px;
 }
 
@@ -140,7 +106,7 @@ input {
   border-radius: 6px;
 }
 
-//---------- credential form style --------
+// ----------- components style --------
 
 #credentialForm {
   display: flex;
@@ -154,7 +120,57 @@ input {
   }
 }
 
-// ----------- components style --------
+.disclaimer {
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+  list-style: circle;
+
+  & > li::marker {
+    content: '*';
+  }
+}
+.toolbar {
+  padding: 4px;
+  display: flex;
+  gap: 0.5rem;
+
+  & > button {
+    height: 1.5rem;
+    font-size: 1.5rem;
+    &:hover {
+      font-weight: 700;
+    }
+  }
+
+  select {
+    margin-left: auto;
+    padding: 0 2px;
+    width: fit-content;
+    height: 100%;
+    font-size: 16px;
+    font-family: inherit;
+    border: 1px solid rgba(20, 40, 128, 0.2);
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+  }
+  @media (max-width: 380px) {
+    select {
+      padding: 5px 8px;
+      font-size: 10px;
+      text-align: center;
+    }
+  }
+
+  select:focus {
+    border-color: #0056b3;
+  }
+}
+
+.error {
+  color: red;
+}
+
 .commentList {
   margin-top: 0.5rem;
   display: flex;
@@ -166,31 +182,102 @@ input {
   }
 }
 
+// ------- comment ------
+.comment {
+  padding: 10px 0 10px 10px;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid #dddddd;
+  box-shadow: 1px 1px 1px 1px #dadada;
+  border-radius: 4px;
+
+  & a {
+    width: fit-content;
+    height: fit-content;
+    justify-content: flex-start;
+    text-decoration: underline;
+  }
+
+  & > img {
+    margin-right: 1rem;
+    max-height: 48px;
+    cursor: pointer;
+    border: 1px solid grey;
+    border-radius: 4px;
+  }
+
+  & > p {
+    padding-top: 2px;
+    width: 100%;
+    border-top: 1px solid #dadada;
+
+    &:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  & > button {
+    position: relative;
+    width: 32px;
+    height: 1rem;
+    border: none;
+
+    svg {
+      transform: translateY(15%);
+    }
+    &:hover {
+      font-size: medium;
+      font-weight: 700;
+      svg {
+        stroke: black;
+      }
+    }
+  }
+
+  & > ul {
+    width: 100%;
+  }
+}
+
+.replyBtn {
+  margin-left: auto;
+}
+
+.commentPreview {
+  & > h3 {
+    text-align: center;
+  }
+
+  & > div > p {
+    word-break: break-all;
+    white-space: pre-wrap;
+  }
+
+  & a {
+    width: fit-content;
+    justify-content: flex-start;
+    text-decoration: underline;
+  }
+
+  & > div > img {
+    max-height: 48px;
+    cursor: pointer;
+  }
+}
+// ------- comment end------
+
+//   - -    coment form ----------
 #commentForm {
   padding: 1rem;
   position: relative;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  background-color: white;
-  border: 1px solid rgba(206, 195, 195, 0.5);
+  background-color: var(--main-bg-cl);
+  border: 1px solid var(--subtle-cl);
   border-radius: 8px;
-
-  .closeBtn {
-    padding: 0;
-    position: absolute;
-    top: -0.2rem;
-    right: 0.2rem;
-    border: none;
-    background-color: transparent;
-    font-size: 1.5rem;
-
-    &:hover {
-      background: none;
-      box-shadow: none;
-      font-weight: 700;
-    }
-  }
 
   & > fieldset {
     padding: 0.4rem;
@@ -245,7 +332,11 @@ input {
     opacity: 1;
 
     & button {
-      background-color: white;
+      background-color: var(--secondary-bg-cl);
+
+      &:hover {
+        box-shadow: 1px 1px 2px 2px #dadada;
+      }
     }
   }
 
@@ -258,8 +349,6 @@ input {
     }
   }
 }
-
-// --- hyperlinkForm -----
 
 .hyperlinkForm {
   position: absolute;
@@ -283,6 +372,7 @@ input {
 
 .custom-file-upload {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
 
   & > label {
@@ -295,8 +385,8 @@ input {
   }
 
   & > button {
-    border: none;
     color: red;
+    font-size: 1.2rem;
     font-style: italic;
   }
 
@@ -307,30 +397,35 @@ input {
 
 .formFooter {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
+  justify-content: flex-end;
 
   & > button {
-    height: fit-content;
+    margin: 0 auto 2rem 1rem;
+    background-color: var(--main-bg-cl);
 
-    &:first-of-type {
-      margin: 0 auto 2rem 1rem;
-      border: none;
-      background-color: white;
-      box-shadow: none;
-
-      &:hover {
-        scale: 1.1;
-      }
-      &:active {
-        scale: 0.9;
-        svg {
-          transform-origin: center;
-          animation: lds-hourglass 0.1s linear infinite;
-        }
+    &:hover {
+      scale: 1.1;
+    }
+    &:active {
+      svg {
+        transform-origin: center;
+        animation: lds-hourglass 0.1s linear infinite;
       }
     }
-    &:last-child {
-      margin-left: 1rem;
+  }
+
+  & > div:last-child {
+    margin-top: 1rem;
+    display: flex;
+    & > button {
+      height: fit-content;
+      background-color: var(--secondary-bg-cl);
+
+      &:last-child {
+        margin-left: 1rem;
+      }
     }
   }
 }
@@ -359,67 +454,38 @@ input {
   }
 }
 
-// -- toolbar =-----------
-.toolbar {
-  display: flex;
-  gap: 0.5rem;
+.cancelBtn {
+  margin-right: 0.5rem;
 }
 
-// ------- comment ------
-.comment {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-
-  & a {
-    width: fit-content;
-    justify-content: flex-start;
-    text-decoration: underline;
-  }
-
-  & > img {
-    max-height: 48px;
-    cursor: pointer;
-  }
-}
-
-.commentPreview {
-  & > h3 {
-    text-align: center;
-  }
-
-  & > div > p {
-    word-break: break-all;
-    white-space: pre-wrap;
-  }
-
-  & a {
-    width: fit-content;
-    justify-content: flex-start;
-    text-decoration: underline;
-  }
-
-  & > div > img {
-    max-height: 48px;
-    cursor: pointer;
-  }
-}
-
-.error {
-  color: red;
-}
-
-.disclaimer {
-  margin-bottom: 1rem;
-  font-size: 0.8rem;
-  list-style: circle;
-
-  & > li::marker {
-    content: '*';
-  }
-}
+//   - -    coment form end---------
 
 //  ------modal------
+.backdrop {
+  padding: 2rem 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(128, 128, 128, 0.2);
+  z-index: 100;
+  overflow-y: scroll;
+  animation: fadeIn 0.7s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .modalImage {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   transition: all 0.3s ease;

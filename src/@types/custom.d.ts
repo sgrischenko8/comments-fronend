@@ -18,7 +18,7 @@ export type CommentType = {
   parentId: null | number;
   text: string;
   userName: string;
-  children?: CommentType[];
+  replies?: CommentType[];
   file: string | File | null;
   image: string | File | null;
 };

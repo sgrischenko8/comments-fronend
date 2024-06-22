@@ -3,23 +3,16 @@ import { CommentForm } from '../../commentForm/CommentForm';
 import { CommentList } from '../CommentList';
 import { Modal } from '../../../components/modal/Modal';
 import { getFormatedDate } from '../../../utils/getFormatedDate';
-import { CommentType } from '../../../@types/custom';
+import { Comment } from '../../../models/Comment';
+import { serverUrl } from '../../../api/api';
 
 interface CommentProps {
-  comment: CommentType;
-  setComments?: (arg0: CommentType[]) => void;
+  comment: Comment;
+  setComments?: (comments: Comment[]) => void;
 }
 
-export const Comment = ({ comment, setComments }: CommentProps) => {
-  const {
-    id,
-    createdAt,
-    userName,
-    text,
-    children,
-    file = null,
-    image = null,
-  } = comment;
+export const CommentComponent = ({ comment, setComments }: CommentProps) => {
+  const { id, createdAt, userName, text, replies, file, image } = comment;
 
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showFileModal, setShowFileModal] = useState(false);
@@ -29,7 +22,7 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
   let imgPath = '';
   if (image) {
     imgPath = setComments
-      ? `https://stark-dawn-12728-fe14e70c36ad.herokuapp.com/${image}`
+      ? `${serverUrl}/${image}`
       : URL.createObjectURL(image as File);
   }
 
@@ -45,7 +38,7 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
 
   function getFileDownloadUrl() {
     if (setComments) {
-      return `https://stark-dawn-12728-fe14e70c36ad.herokuapp.com/${file}`;
+      return `${serverUrl}/${file}`;
     }
     return URL.createObjectURL(file as File);
   }
@@ -57,8 +50,9 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
           'Content-Type': 'text/plain',
         },
       });
+
       const textContent = await response.text();
-      setFileContent(textContent);
+      setFileContent(response.status === 404 ? 'File missing' : textContent);
       setShowFileModal(true);
     }
   }
@@ -70,10 +64,11 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
       </span>
       <button
         type="button"
-        title="Reply"
+        title={showReplyForm ? 'Close' : 'Reply'}
+        className="replyBtn"
         onClick={() => (setComments ? setShowReplyForm(!showReplyForm) : false)}
       >
-        {showReplyForm ? 'Cancel' : 'Reply'}
+        {showReplyForm ? 'x' : 'h'}
       </button>
       <p dangerouslySetInnerHTML={{ __html: text }}></p>
       {image && (
@@ -84,6 +79,7 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
           onClick={() => setImageShowModal(!showImageModal)}
           width={64}
           height={48}
+          loading="lazy"
         />
       )}
       {file && (
@@ -96,22 +92,24 @@ export const Comment = ({ comment, setComments }: CommentProps) => {
             {getFileDownloadName()}
           </a>
           <button type="button" onClick={handleShowFile} title="Show file">
-            Show
+            <svg width={32} height={22}>
+              <use href="sprite.svg#show" />
+            </svg>
           </button>
         </>
-      )}
-      {comment?.children && (
-        <CommentList
-          comments={children}
-          setComments={setComments as (arg0: CommentType[]) => void}
-        />
       )}
 
       {showReplyForm && (
         <CommentForm
-          setComments={setComments as (arg0: CommentType[]) => void}
+          setComments={setComments as (comments: Comment[]) => void}
           parentId={id as number}
           close={() => setShowReplyForm(false)}
+        />
+      )}
+      {comment?.replies && comment.replies.length > 0 && (
+        <CommentList
+          comments={replies}
+          setComments={setComments as (comments: Comment[]) => void}
         />
       )}
 
